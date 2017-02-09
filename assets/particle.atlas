@@ -1,0 +1,52 @@
+images {
+  image: "/assets/logo.png"
+}
+images {
+  image: "/assets/bubble.png"
+}
+images {
+  image: "/assets/star2.png"
+}
+images {
+  image: "/builtins/graphics/particle_blob.png"
+}
+images {
+  image: "/assets/rainbow.png"
+}
+animations {
+  id: "fart"
+  images {
+    image: "/assets/fart00.png"
+  }
+  images {
+    image: "/assets/fart01.png"
+  }
+  images {
+    image: "/assets/fart02.png"
+  }
+  images {
+    image: "/assets/fart03.png"
+  }
+  images {
+    image: "/assets/fart04.png"
+  }
+  images {
+    image: "/assets/fart05.png"
+  }
+  images {
+    image: "/assets/fart06.png"
+  }
+  images {
+    image: "/assets/fart07.png"
+  }
+  images {
+    image: "/assets/fart08.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

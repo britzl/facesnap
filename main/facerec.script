@@ -1,0 +1,184 @@
+
+local z = 0.5
+local color = vmath.vector4(0, 1, 0, 1)
+
+function init(self)
+	msg.post("#", "acquire_input_focus")
+	
+	--go.animate("/CameraModel", "euler.y", go.PLAYBACK_LOOP_FORWARD, 360, go.EASING_LINEAR, 10)
+	--go.set("/CameraModel", "rotation", vmath.quat())
+	self.sprite_size = go.get("#sprite", "size")
+	self.sprite_scale = go.get("#sprite", "scale")
+
+	self.size = go.get("/go#sprite", "size")
+	self.scale = vmath.vector3(1.55, 1.55, 1)
+	self.offset = vmath.vector3(-100, -370, 0)
+
+	if camera and camera.start_capture() then
+		self.cameraframe = camera.get_frame()
+		self.camerainfo = camera.get_info()
+		self.cameraheader = { width=1280, height=720, type=resource.TEXTURE_TYPE_2D, format=resource.TEXTURE_FORMAT_RGB, num_mip_maps=1 }
+	else
+		print("could not start camera capture")
+	end
+
+	if facerec then
+		local shaperec = resource.load("/facerec/shapes/shape_predictor_68_face_landmarks.dat")
+		facerec.start(shaperec)
+	end
+	
+	--go.animate(".", "position", go.PLAYBACK_LOOP_PINGPONG, go.get_position() - vmath.vector3(-300, -100, 0), go.EASING_INOUTSINE, 4)
+	--go.animate(".", "scale", go.PLAYBACK_LOOP_PINGPONG, 2, go.EASING_INOUTSINE, 2.5)
+	
+	self.faces = {}
+end
+
+function final(self)
+	if self.cameraframe then
+		camera.stop_capture()
+	end
+	if facerec then
+		facerec.stop()
+	end
+end
+
+
+local function convert_pt(image_size, sprite_size, pt, z)
+	local sx = sprite_size.x / image_size.x
+	local sy = sprite_size.y / image_size.y
+	
+	
+	local x = ((-130 + pt.x * 1.60) * sx)
+	local y = ((-390 + pt.y * 1.60) * sy)
+
+	return vmath.vector3(x, y, z)
+end
+
+
+local function get_feature_center(feature)
+	local x = 0
+	local y = 0
+	for _,pt in ipairs(feature) do
+		x = x + pt.x
+		y = y + pt.y
+	end
+	
+	return vmath.vector3(x / #feature, y / #feature, 0)
+end
+
+local function get_feature_bounds(feature)
+	local x1, x2, y1, y2
+	for _,pt in ipairs(feature) do
+		if not x1 or pt.x < x1 then x1 = pt.x end
+		if not x2 or pt.x > x2 then x2 = pt.x end
+		if not y1 or pt.y < y1 then y1 = pt.y end
+		if not y2 or pt.y > y2 then y2 = pt.y end
+	end
+	return vmath.vector4(x1, y1, x2, y2)
+end
+
+local function get_mouth_center(features)
+	return get_feature_center(features.lips_inner)
+end
+
+local function is_mouth_open(features)
+	local bounds = get_feature_bounds(features.lips_inner)
+	local w = bounds.z - bounds.x
+	local h = bounds.w - bounds.y
+	return (w / h) < 3.25
+end
+
+function update(self, dt)
+	if facerec and self.cameraframe then
+
+		local image_size = vmath.vector3(self.cameraheader.width, self.cameraheader.height, 0)
+		local go_scale = go.get_scale()
+		local sprite_size = vmath.vector3(self.sprite_size.x * self.sprite_scale.x * go_scale, self.sprite_size.y * self.sprite_scale.y * go_scale, 0)
+		local pos = go.get_position()	-- no sprite offset
+		local lower_left = vmath.vector3(pos.x - (sprite_size.x / 2), pos.y - (sprite_size.y / 2), 0)
+	
+		local function draw_feature(pts)
+			if pts then
+				for i = 2,#pts do
+					pt1 = convert_pt(image_size, sprite_size, pts[i-1], z)
+					pt2 = convert_pt(image_size, sprite_size, pts[i], z)
+					msg.post("@render:", "draw_line", { start_point = lower_left + pt1, end_point = lower_left + pt2, color = color } )
+				end
+			end
+		end
+
+		local faces = facerec.analyze(self.cameraheader.width, self.cameraheader.height, self.cameraframe)
+		for i, features in ipairs(faces) do
+			self.faces[i] = self.faces[i] or {}
+			self.faces[i].features = features
+			
+			msg.post("mouth"..i, "enable")
+			msg.post("hat"..i, "enable")
+			msg.post("left_eye"..i, "enable")
+			msg.post("right_eye"..i, "enable")
+			
+			for feature_name, pts in pairs(features) do
+				--print(feature_name)
+				--draw_feature(pts)
+			end
+
+			local mouth = convert_pt(image_size, sprite_size, get_feature_center(features.lips_inner), 1)
+			go.set_position(mouth, "mouth"..i)
+			if is_mouth_open(features) then
+				if not self.faces[i].mouth_open then
+					self.faces[i].mouth_open = true
+					particlefx.play("mouth"..i.."#particlefx")
+					--draw_feature(features.lips_inner)
+				end
+				local lips_bounds = get_feature_bounds(features.lips_inner)
+				local width = lips_bounds.z - lips_bounds.x
+				go.set_scale(width / 90, "mouth"..i)
+			else
+				if self.faces[i].mouth_open then
+					self.faces[i].mouth_open = false
+					particlefx.stop("mouth"..i.."#particlefx")
+				end
+			end
+
+			local left_eye = get_feature_center(features.eye_left)
+			local right_eye = get_feature_center(features.eye_right)
+			local nose = get_feature_center(features.nose_ridge)
+			local eye_dist = (right_eye.x - left_eye.x)
+			local chin_bounds = get_feature_bounds(features.chin)
+			go.set_position(convert_pt(image_size, sprite_size, nose + vmath.vector3(0, eye_dist * 1.8, 0), z), "hat"..i)
+			go.set_scale((chin_bounds.z - chin_bounds.x) / 480, "hat"..i)
+
+			go.set_position(convert_pt(image_size, sprite_size, left_eye, z), "left_eye"..i)
+			go.set_position(convert_pt(image_size, sprite_size, right_eye, z), "right_eye"..i)
+			local eye_bounds = get_feature_bounds(features.eye_left)
+			go.set_scale((eye_bounds.z - eye_bounds.x) / 200, "left_eye"..i)
+			go.set_scale((eye_bounds.z - eye_bounds.x) / 200, "right_eye"..i)
+		end
+		
+		-- disable faces that aren't active
+		for i=#faces+1,4 do
+			msg.post("mouth"..i, "disable")
+			msg.post("hat"..i, "disable")
+			msg.post("left_eye"..i, "disable")
+			msg.post("right_eye"..i, "disable")
+			particlefx.stop("mouth"..i.."#particlefx")
+			self.faces[i] = self.faces[i] or {}
+			self.faces[i].mouth_open = false
+		end
+	end
+	
+	if self.cameraframe then
+		local pathmodelcamera = go.get("/go#sprite", "texture0")
+		resource.set_texture(pathmodelcamera, self.cameraheader, self.cameraframe)
+	end
+end
+
+function on_input(self, action_id, action)
+	print(action_id)
+	pprint(action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+end

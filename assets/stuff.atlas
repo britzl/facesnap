@@ -1,0 +1,24 @@
+images {
+  image: "/assets/crown.png"
+}
+images {
+  image: "/assets/left_eye.png"
+}
+images {
+  image: "/assets/right_eye.png"
+}
+images {
+  image: "/assets/left_eye2.png"
+}
+images {
+  image: "/assets/right_eye2.png"
+}
+images {
+  image: "/assets/left_eye3.png"
+}
+images {
+  image: "/assets/right_eye3.png"
+}
+margin: 0
+extrude_borders: 2
+inner_padding: 0

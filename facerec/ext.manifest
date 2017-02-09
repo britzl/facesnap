@@ -1,0 +1,12 @@
+name: "Facerec"
+
+platforms:
+    x86_64-osx:
+        context:
+            flags:      ["-std=c++0x", "-stdlib=libc++"]
+            libs:       ["c++", "blas", "lapack"]
+            
+    x86-osx:
+        context:
+            flags:      ["-std=c++0x", "-stdlib=libc++"]
+            libs:       ["c++", "blas", "lapack"]
