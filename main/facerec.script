@@ -1,12 +1,8 @@
 
 local z = 0.5
-local color = vmath.vector4(0, 1, 0, 1)
+local line_color = vmath.vector4(0, 1, 0, 1)
 
 function init(self)
-	msg.post("#", "acquire_input_focus")
-	
-	--go.animate("/CameraModel", "euler.y", go.PLAYBACK_LOOP_FORWARD, 360, go.EASING_LINEAR, 10)
-	--go.set("/CameraModel", "rotation", vmath.quat())
 	self.sprite_size = go.get("#sprite", "size")
 	self.sprite_scale = go.get("#sprite", "scale")
 
@@ -27,9 +23,6 @@ function init(self)
 		facerec.start(shaperec)
 	end
 	
-	--go.animate(".", "position", go.PLAYBACK_LOOP_PINGPONG, go.get_position() - vmath.vector3(-300, -100, 0), go.EASING_INOUTSINE, 4)
-	--go.animate(".", "scale", go.PLAYBACK_LOOP_PINGPONG, 2, go.EASING_INOUTSINE, 2.5)
-	
 	self.faces = {}
 end
 
@@ -46,11 +39,8 @@ end
 local function convert_pt(image_size, sprite_size, pt, z)
 	local sx = sprite_size.x / image_size.x
 	local sy = sprite_size.y / image_size.y
-	
-	
 	local x = ((-130 + pt.x * 1.60) * sx)
 	local y = ((-390 + pt.y * 1.60) * sy)
-
 	return vmath.vector3(x, y, z)
 end
 
@@ -95,6 +85,7 @@ function update(self, dt)
 		local go_scale = go.get_scale()
 		local sprite_size = vmath.vector3(self.sprite_size.x * self.sprite_scale.x * go_scale, self.sprite_size.y * self.sprite_scale.y * go_scale, 0)
 		local pos = go.get_position()	-- no sprite offset
+		-- lower left corner of camera sprite
 		local lower_left = vmath.vector3(pos.x - (sprite_size.x / 2), pos.y - (sprite_size.y / 2), 0)
 	
 		local function draw_feature(pts)
@@ -102,7 +93,7 @@ function update(self, dt)
 				for i = 2,#pts do
 					pt1 = convert_pt(image_size, sprite_size, pts[i-1], z)
 					pt2 = convert_pt(image_size, sprite_size, pts[i], z)
-					msg.post("@render:", "draw_line", { start_point = lower_left + pt1, end_point = lower_left + pt2, color = color } )
+					msg.post("@render:", "draw_line", { start_point = lower_left + pt1, end_point = lower_left + pt2, color = line_color } )
 				end
 			end
 		end
@@ -128,7 +119,6 @@ function update(self, dt)
 				if not self.faces[i].mouth_open then
 					self.faces[i].mouth_open = true
 					particlefx.play("mouth"..i.."#particlefx")
-					--draw_feature(features.lips_inner)
 				end
 				local lips_bounds = get_feature_bounds(features.lips_inner)
 				local width = lips_bounds.z - lips_bounds.x
@@ -171,13 +161,6 @@ function update(self, dt)
 		local pathmodelcamera = go.get("/go#sprite", "texture0")
 		resource.set_texture(pathmodelcamera, self.cameraheader, self.cameraframe)
 	end
-end
-
-function on_input(self, action_id, action)
-	print(action_id)
-	pprint(action)
-	-- Add input-handling code here
-	-- Remove this function if not needed
 end
 
 function on_reload(self)
