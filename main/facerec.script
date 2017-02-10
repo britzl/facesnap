@@ -36,6 +36,10 @@ function final(self)
 end
 
 
+--
+-- Convert a point so that it maps up on the camera image
+-- There's a bunch of magic numbers here. Don't ask.
+--
 local function convert_pt(image_size, sprite_size, pt, z)
 	local sx = sprite_size.x / image_size.x
 	local sy = sprite_size.y / image_size.y
@@ -45,6 +49,9 @@ local function convert_pt(image_size, sprite_size, pt, z)
 end
 
 
+--
+-- Get the mid-point of a facial feature
+--
 local function get_feature_center(feature)
 	local x = 0
 	local y = 0
@@ -56,6 +63,9 @@ local function get_feature_center(feature)
 	return vmath.vector3(x / #feature, y / #feature, 0)
 end
 
+--
+-- Get the bounds of a facial feature
+--
 local function get_feature_bounds(feature)
 	local x1, x2, y1, y2
 	for _,pt in ipairs(feature) do
@@ -67,10 +77,11 @@ local function get_feature_bounds(feature)
 	return vmath.vector4(x1, y1, x2, y2)
 end
 
-local function get_mouth_center(features)
-	return get_feature_center(features.lips_inner)
-end
 
+--
+-- Check if the mouth is open
+-- True if the ratio between mouth width and height is above a threshold value
+--
 local function is_mouth_open(features)
 	local bounds = get_feature_bounds(features.lips_inner)
 	local w = bounds.z - bounds.x
