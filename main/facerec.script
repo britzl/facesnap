@@ -6,7 +6,7 @@ function init(self)
 	self.sprite_size = go.get("#sprite", "size")
 	self.sprite_scale = go.get("#sprite", "scale")
 
-	self.size = go.get("/go#sprite", "size")
+	self.size = go.get("#sprite", "size")
 	self.scale = vmath.vector3(1.55, 1.55, 1)
 	self.offset = vmath.vector3(-100, -370, 0)
 
@@ -158,7 +158,7 @@ function update(self, dt)
 	end
 	
 	if self.cameraframe then
-		local pathmodelcamera = go.get("/go#sprite", "texture0")
+		local pathmodelcamera = go.get("#sprite", "texture0")
 		resource.set_texture(pathmodelcamera, self.cameraheader, self.cameraframe)
 	end
 end

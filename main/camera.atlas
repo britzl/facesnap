@@ -1,7 +1,4 @@
 images {
-  image: "/assets/logo.png"
-}
-images {
   image: "/assets/1280x720.png"
 }
 margin: 0

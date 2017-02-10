@@ -1,11 +1,7 @@
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "tile_set: \"/assets/stuff.atlas\"\n"
-  "default_animation: \"right_eye\"\n"
-  "material: \"/builtins/materials/sprite.material\"\n"
-  "blend_mode: BLEND_MODE_ALPHA\n"
-  ""
+  data: "tile_set: \"/main/stuff.atlas\"\ndefault_animation: \"right_eye\"\n"
   position {
     x: 0.0
     y: 0.0
