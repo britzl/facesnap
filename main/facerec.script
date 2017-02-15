@@ -43,8 +43,8 @@ end
 local function convert_pt(image_size, sprite_size, pt, z)
 	local sx = sprite_size.x / image_size.x
 	local sy = sprite_size.y / image_size.y
-	local x = ((-130 + pt.x * 1.60) * sx)
-	local y = ((-390 + pt.y * 1.60) * sy)
+	local x = ((-0 + pt.x * 1.60) * sx)
+	local y = ((-410 + pt.y * 1.60) * sy)
 	return vmath.vector3(x, y, z)
 end
 
