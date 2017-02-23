@@ -44,7 +44,7 @@ local function convert_pt(image_size, sprite_size, pt, z)
 	local sx = sprite_size.x / image_size.x
 	local sy = sprite_size.y / image_size.y
 	local x = ((-0 + pt.x * 1.60) * sx)
-	local y = ((-410 + pt.y * 1.60) * sy)
+	local y = ((-380 + pt.y * 1.60) * sy)
 	return vmath.vector3(x, y, z)
 end
 
@@ -129,7 +129,7 @@ function update(self, dt)
 			if is_mouth_open(features) then
 				if not self.faces[i].mouth_open then
 					self.faces[i].mouth_open = true
-					particlefx.play("mouth"..i.."#particlefx")
+					--particlefx.play("mouth"..i.."#particlefx")
 				end
 				local lips_bounds = get_feature_bounds(features.lips_inner)
 				local width = lips_bounds.z - lips_bounds.x
