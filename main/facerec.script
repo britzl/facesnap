@@ -94,7 +94,7 @@ function update(self, dt)
 
 		local image_size = vmath.vector3(self.cameraheader.width, self.cameraheader.height, 0)
 		local go_scale = go.get_scale()
-		local sprite_size = vmath.vector3(self.sprite_size.x * self.sprite_scale.x * go_scale, self.sprite_size.y * self.sprite_scale.y * go_scale, 0)
+		local sprite_size = vmath.vector3(self.sprite_size.x * self.sprite_scale.x * go_scale.x, self.sprite_size.y * self.sprite_scale.y * go_scale.y, 0)
 		local pos = go.get_position()	-- no sprite offset
 		-- lower left corner of camera sprite
 		local lower_left = vmath.vector3(pos.x - (sprite_size.x / 2), pos.y - (sprite_size.y / 2), 0)
@@ -129,7 +129,7 @@ function update(self, dt)
 			if is_mouth_open(features) then
 				if not self.faces[i].mouth_open then
 					self.faces[i].mouth_open = true
-					--particlefx.play("mouth"..i.."#particlefx")
+					particlefx.play("mouth"..i.."#particlefx")
 				end
 				local lips_bounds = get_feature_bounds(features.lips_inner)
 				local width = lips_bounds.z - lips_bounds.x
