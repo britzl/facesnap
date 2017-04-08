@@ -2,6 +2,7 @@
 title = My project
 version = 0.1
 custom_resources = videos/,facerec/shapes
+dependencies = https://github.com/defold/extension-camera/archive/master.zip
 
 [bootstrap]
 main_collection = /main/facerec.collectionc

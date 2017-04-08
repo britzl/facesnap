@@ -10,7 +10,7 @@ function init(self)
 	self.scale = vmath.vector3(1.55, 1.55, 1)
 	self.offset = vmath.vector3(-100, -370, 0)
 
-	if camera and camera.start_capture() then
+	if camera and camera.start_capture(camera.CAMERA_TYPE_FRONT, camera.CAPTURE_QUALITY_HIGH) then
 		self.cameraframe = camera.get_frame()
 		self.camerainfo = camera.get_info()
 		self.cameraheader = { width=1280, height=720, type=resource.TEXTURE_TYPE_2D, format=resource.TEXTURE_FORMAT_RGB, num_mip_maps=1 }
