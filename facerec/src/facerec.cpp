@@ -62,7 +62,7 @@ Facerec g_Facerec;
 static int FacerecStart(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    dmBuffer::HBuffer* buffer = dmScript::CheckBuffer(L, 1);
+    dmScript::LuaHBuffer* buffer = dmScript::CheckBuffer(L, 1);
 
     dmScript::PushBuffer(L, *buffer);
     g_Facerec.m_TrainingDataLuaRef = dmScript::Ref(L, LUA_REGISTRYINDEX);
@@ -71,7 +71,7 @@ static int FacerecStart(lua_State* L)
 
     uint8_t* data = 0;
     uint32_t datasize = 0;
-    dmBuffer::GetBytes(*buffer, (void**)&data, &datasize);
+    dmBuffer::GetBytes(buffer->m_Buffer, (void**)&data, &datasize);
 
     imemstream stream( (char const*)data, (size_t)datasize );
     dlib::deserialize(g_Facerec.m_Predictor, stream);
@@ -104,11 +104,11 @@ static int FacerecAnalyze(lua_State* L)
 
     int width = luaL_checkint(L, 1);
     int height = luaL_checkint(L, 2);
-    dmBuffer::HBuffer* buffer = dmScript::CheckBuffer(L, 3);
+    dmScript::LuaHBuffer* buffer = dmScript::CheckBuffer(L, 3);
 
     uint8_t* data = 0;
     uint32_t datasize = 0;
-    dmBuffer::GetBytes(*buffer, (void**)&data, &datasize);
+    dmBuffer::GetBytes(buffer->m_Buffer, (void**)&data, &datasize);
 
     dlib::array2d<dlib::rgb_pixel> img;
 
